@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Convite de Casamento Digital Interativo</title>
+
+  <!-- Google Fonts: Caligráfica e Serifada Nobre -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       RESET & BASE CSS
+       ========================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --envelope-color: #384934;
+      --envelope-flap-color: #2F3E2B;
+      --envelope-shadow: rgba(0, 0, 0, 0.35);
+      --wax-color: #C59A3F;
+      --wax-dark: #8C6A24;
+      --wax-light: #F2D27A;
+      --paper-bg: #FAF7F2;
+      --text-primary: #273424;
+      --text-muted: #6B7768;
+      --accent-gold: #A8812C;
+      --accent-gold-light: #E8D39E;
+      --card-border: #E8E2D8;
+      --rsvp-yes: #2E6B3E;
+      --rsvp-no: #8A3C3C;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--envelope-color);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Container mobile-first ocupando a tela do smartphone */
+    #app-container {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      position: relative;
+      background-color: var(--paper-bg);
+      overflow-x: hidden;
+      box-shadow: 0 0 40px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==========================================================================
+       ESTADO 1: ENVELOPE FECHADO COM TEXTURA E SELO DE CERA
+       ========================================================================== */
+    #envelope-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      right: 0;
+      background-color: var(--envelope-color);
+      background-image: 
+        radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.08) 0%, transparent 70%),
+        linear-gradient(135deg, rgba(0, 0, 0, 0.15) 0%, transparent 100%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.9s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
+      perspective: 1200px;
+    }
+
+    /* Traçado geométrico das dobras do envelope fechado */
+    .envelope-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .envelope-flap-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 52%;
+      background: linear-gradient(180deg, var(--envelope-flap-color) 0%, var(--envelope-color) 100%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top center;
+      transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      z-index: 5;
+    }
+
+    .envelope-folds-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 55%;
+      clip-path: polygon(0 100%, 100% 100%, 50% 0);
+      background: rgba(0, 0, 0, 0.08);
+      z-index: 3;
+    }
+
+    .envelope-side-left {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 48%;
+      height: 100%;
+      clip-path: polygon(0 0, 0 100%, 100% 100%);
+      background: rgba(0, 0, 0, 0.04);
+      z-index: 2;
+    }
+
+    .envelope-side-right {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 48%;
+      height: 100%;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      background: rgba(0, 0, 0, 0.04);
+      z-index: 2;
+    }
+
+    /* Texto nobre no envelope: Save the Date */
+    .envelope-header-text {
+      position: absolute;
+      top: 14%;
+      text-align: center;
+      z-index: 10;
+      color: rgba(255, 255, 255, 0.85);
+      pointer-events: none;
+    }
+
+    .envelope-header-text .subtitle {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      color: var(--accent-gold-light);
+    }
+
+    .envelope-header-text .couple-names {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: #FFFFFF;
+    }
+
+    /* Selo de Cera 3D centrado */
+    .wax-seal-container {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+    }
+
+    .wax-seal {
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, var(--wax-light) 0%, var(--wax-color) 45%, var(--wax-dark) 95%);
+      box-shadow: 
+        0 10px 24px rgba(0, 0, 0, 0.45),
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        inset 0 3px 5px rgba(255, 255, 255, 0.4),
+        inset 0 -4px 6px rgba(0, 0, 0, 0.45);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease, filter 0.25s ease;
+      animation: sealPulse 2.4s infinite ease-in-out;
+    }
+
+    .wax-seal::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border-radius: 46% 54% 52% 48% / 51% 47% 53% 49%;
+      background: inherit;
+      z-index: -1;
+      opacity: 0.85;
+      filter: blur(0.5px);
+    }
+
+    /* Borda interior prensada do selo */
+    .wax-seal-rim {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(110, 80, 20, 0.45);
+      box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.35),
+        0 1px 2px rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.15) 0%, transparent 70%);
+    }
+
+    /* Monograma / Iniciais gravadas no selo */
+    .wax-initials {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #4A3510;
+      text-shadow: 
+        0 1px 1px rgba(255, 255, 255, 0.4),
+        0 -1px 1px rgba(0, 0, 0, 0.5);
+      letter-spacing: 1px;
+    }
+
+    /* Texto pequeno: Toque no selo para abrir o convite */
+    .seal-tap-instruction {
+      margin-top: 24px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(4px);
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: instructionFloat 2s ease-in-out infinite alternate;
+    }
+
+    .seal-tap-instruction svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--accent-gold-light);
+    }
+
+    /* ==========================================================================
+       KEYFRAMES & ANIMAÇÕES DE TRANSIÇÃO (ESTADO 1 -> ESTADO 2)
+       ========================================================================== */
+    @keyframes sealPulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.06);
+        box-shadow: 
+          0 14px 28px rgba(0, 0, 0, 0.55),
+          0 0 16px rgba(242, 210, 122, 0.35);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes instructionFloat {
+      0% {
+        transform: translateY(0);
+        opacity: 0.85;
+      }
+      100% {
+        transform: translateY(4px);
+        opacity: 1;
+      }
+    }
+
+    /* Classes acionadas quando o selo é clicado */
+    .envelope-opening .wax-seal {
+      animation: breakSeal 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    .envelope-opening .seal-tap-instruction {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .envelope-opening .envelope-flap-top {
+      transform: rotateX(180deg);
+      transition-delay: 0.25s;
+    }
+
+    .envelope-opening#envelope-screen {
+      transform: translateY(-100%);
+      opacity: 0;
+      transition: transform 0.9s cubic-bezier(0.77, 0, 0.175, 1) 0.55s, opacity 0.7s ease 0.6s;
+      pointer-events: none;
+    }
+
+    @keyframes breakSeal {
+      0% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      35% {
+        transform: scale(1.22) rotate(4deg);
+        filter: brightness(1.3);
+      }
+      65% {
+        transform: scale(1.3) rotate(-8deg);
+        opacity: 0.9;
+        clip-path: polygon(0 0, 48% 0, 56% 100%, 0% 100%);
+      }
+      100% {
+        transform: scale(1.5) translate(0, -20px);
+        opacity: 0;
+      }
+    }
+
+    /* ==========================================================================
+       ESTADO 2: CONVITE ABERTO (CONTEÚDO INTERATIVO REVELADO)
+       ========================================================================== */
+    #invitation-content {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--paper-bg);
+      background-image: 
+        radial-gradient(#E8E2D8 1px, transparent 1px),
+        linear-gradient(to bottom, #FFFDFB 0%, var(--paper-bg) 100%);
+      background-size: 24px 24px, 100% 100%;
+      padding: 24px 20px 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease 0.5s, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s;
+    }
+
+    #invitation-content.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Barra superior com botão para rever o envelope */
+    .top-controls {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .envelope-replay-btn {
+      background: rgba(56, 73, 52, 0.08);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .envelope-replay-btn:hover {
+      background: var(--envelope-color);
+      color: #fff;
+    }
+
+    .badge-official {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      background: rgba(168, 129, 44, 0.1);
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(168, 129, 44, 0.2);
+    }
+
+    /* Monograma decorativo no topo da carta */
+    .monogram-badge {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 1.5px solid var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 12px;
+      background: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(168, 129, 44, 0.12);
+    }
+
+    /* Tipografia caligráfica dos noivos */
+    .couple-title {
+      font-family: 'Alex Brush', cursive;
+      font-size: 48px;
+      font-weight: 400;
+      color: var(--text-primary);
+      text-align: center;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .invitation-phrase {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 17px;
+      font-style: italic;
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.45;
+      margin-bottom: 24px;
+    }
+
+    /* Divisor floral suave */
+    .ornament-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 80%;
+      margin-bottom: 28px;
+    }
+
+    .ornament-divider .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--card-border), transparent);
+    }
+
+    .ornament-divider svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--accent-gold);
+    }
+
+    /* Bloco elegante de Data, Hora e Local */
+    .event-details-card {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+      text-align: center;
+      margin-bottom: 28px;
+      position: relative;
+    }
+
+    .event-details-card::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      right: 6px;
+      bottom: 6px;
+      border: 1px dashed rgba(168, 129, 44, 0.25);
+      border-radius: 16px;
+      pointer-events: none;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 8px;
+    }
+
+    .event-date-large {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .event-time {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .venue-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .venue-address {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    /* Botão Ver no Mapa */
+    .btn-map {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--paper-bg);
+      border: 1.5px solid var(--accent-gold);
+      color: var(--accent-gold);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .btn-map:hover, .btn-map:active {
+      background: var(--accent-gold);
+      color: #FFFFFF;
+    }
+
+    .btn-map svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* ==========================================================================
+       CARROSSEL / GALERIA DE FOTOS DO CASAL
+       ========================================================================== */
+    .gallery-section {
+      width: 100%;
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      background: #EBE5DB;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+      width: 100%;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      position: relative;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 290px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .slide-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, transparent 100%);
+      color: #FFFFFF;
+      padding: 24px 16px 12px 16px;
+      font-size: 13px;
+      font-style: italic;
+      text-align: center;
+    }
+
+    /* Botões prev/next do carrossel */
+    .carousel-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(4px);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      transition: background 0.2s;
+    }
+
+    .carousel-nav-btn:hover {
+      background: #FFFFFF;
+    }
+
+    .carousel-nav-btn.prev { left: 10px; }
+    .carousel-nav-btn.next { right: 10px; }
+
+    .carousel-nav-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--text-primary);
+    }
+
+    /* Indicadores (dots) */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--card-border);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: var(--accent-gold);
+      width: 18px;
+      border-radius: 4px;
+    }
+
+    /* ==========================================================================
+       CONTAGEM REGRESSIVA ATÉ AO EVENTO
+       ========================================================================== */
+    .countdown-section {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 22px 16px;
+      text-align: center;
+      margin-bottom: 28px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
+    }
+
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .countdown-box {
+      background: var(--paper-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .countdown-number {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .countdown-label {
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-top: 6px;
+    }
+
+    /* ==========================================================================
+       RSVP (CONFIRMAÇÃO DE PRESENÇA COM LOCALSTORAGE)
+       ========================================================================== */
+    .rsvp-section {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px 20px;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.04);
+      text-align: center;
+    }
+
+    .rsvp-buttons-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+    }
+
+    .btn-rsvp-choice {
+      flex: 1;
+      padding: 12px 8px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1.5px solid var(--card-border);
+      background: var(--paper-bg);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-rsvp-choice.selected-yes {
+      background: var(--rsvp-yes);
+      border-color: var(--rsvp-yes);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(46, 107, 62, 0.3);
+    }
+
+    .btn-rsvp-choice.selected-no {
+      background: var(--rsvp-no);
+      border-color: var(--rsvp-no);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(138, 60, 60, 0.3);
+    }
+
+    .rsvp-form-container {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .rsvp-form-container.active {
+      display: flex;
+    }
+
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: var(--paper-bg);
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--accent-gold);
+    }
+
+    .btn-submit-rsvp {
+      background: var(--envelope-color);
+      color: #FFFFFF;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 4px;
+    }
+
+    .btn-submit-rsvp:hover {
+      background: var(--envelope-flap-color);
+    }
+
+    .rsvp-status-badge {
+      display: none;
+      background: rgba(46, 107, 62, 0.1);
+      border: 1px solid rgba(46, 107, 62, 0.25);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .rsvp-status-badge.visible {
+      display: block;
+    }
+
+    .rsvp-status-badge .status-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--rsvp-yes);
+      margin-bottom: 4px;
+    }
+
+    .rsvp-status-badge .status-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .btn-change-rsvp {
+      background: transparent;
+      border: none;
+      color: var(--accent-gold);
+      font-size: 11.5px;
+      font-weight: 600;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* ==========================================================================
+       DRESS CODE & INFORMAÇÕES ADICIONAIS
+       ========================================================================== */
+    .info-section {
+      width: 100%;
+      margin-bottom: 28px;
+    }
+
+    .info-card {
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
+    }
+
+    .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .info-icon {
+      font-size: 20px;
+    }
+
+    .info-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .info-content {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-muted);
+      white-space: pre-line;
+    }
+
+    .dress-code-badge {
+      display: inline-block;
+      background: rgba(168, 129, 44, 0.12);
+      color: var(--accent-gold);
+      font-weight: 600;
+      font-size: 12.5px;
+      padding: 4px 12px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+    }
+
+    /* ==========================================================================
+       BOTÃO FINAL: ADICIONAR AO CALENDÁRIO
+       ========================================================================== */
+    .calendar-section {
+      width: 100%;
+      margin-top: 8px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .btn-add-calendar {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #8E6D20 100%);
+      color: #FFFFFF;
+      border: none;
+      padding: 16px 20px;
+      border-radius: 30px;
+      font-size: 14.5px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 20px rgba(168, 129, 44, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-add-calendar:active {
+      transform: scale(0.98);
+    }
+
+    .btn-add-calendar svg {
+      width: 18px;
+      height: 18px;
+      fill: #FFFFFF;
+    }
+
+    /* Rodapé delicado */
+    .invitation-footer {
+      text-align: center;
+      padding-top: 10px;
+    }
+
+    .footer-quote {
+      font-family: 'Alex Brush', cursive;
+      font-size: 32px;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+
+    <!-- ======================================================================
+         ESTADO 1: ENVELOPE FECHADO
+         ====================================================================== -->
+    <div id="envelope-screen">
+      <!-- Linhas e dobras estéticas do envelope -->
+      <div class="envelope-lines">
+        <div class="envelope-side-left"></div>
+        <div class="envelope-side-right"></div>
+        <div class="envelope-folds-bottom"></div>
+        <div class="envelope-flap-top" id="envelope-flap"></div>
+      </div>
+
+      <!-- Texto Save the Date no envelope -->
+      <div class="envelope-header-text">
+        <div class="subtitle">SAVE THE DATE</div>
+        <div class="couple-names" id="envelope-couple-names">Beatriz & Guilherme</div>
+      </div>
+
+      <!-- Selo de Cera 3D Centrado com Monograma -->
+      <div class="wax-seal-container" id="wax-seal-trigger">
+        <div class="wax-seal" id="wax-seal-element">
+          <div class="wax-seal-rim">
+            <div class="wax-initials" id="envelope-wax-initials">B & G</div>
+          </div>
+        </div>
+        <div class="seal-tap-instruction">
+          <svg viewBox="0 0 24 24"><path d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74c1.21-.81 2-2.18 2-3.74a4.5 4.5 0 0 0-9 0c0 1.56.79 2.93 2 3.74zm9.84 4.63-4.54-2.26a1.53 1.53 0 0 0-1.3-.09l-1 .34V7.5a1.5 1.5 0 0 0-3 0v9.75l-3.3-1.04a1.27 1.27 0 0 0-1.4.38l-.66.8 5.48 5.48c.37.37.88.58 1.41.58h6.24c.98 0 1.81-.7 1.97-1.67l.84-5.06c.14-.84-.23-1.68-.74-2.11z"/></svg>
+          <span>Toque no selo para abrir o convite</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         ESTADO 2: CONVITE ABERTO (REVELADO APÓS CLIQUE)
+         ====================================================================== -->
+    <div id="invitation-content">
+      
+      <!-- Controles Superiores -->
+      <div class="top-controls">
+        <button class="envelope-replay-btn" id="btn-replay-envelope">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+          Rever Envelope
+        </button>
+        <span class="badge-official">Convite Oficial</span>
+      </div>
+
+      <!-- Monograma do Casal -->
+      <div class="monogram-badge" id="card-monogram">B & G</div>
+
+      <!-- Nomes dos Noivos em Tipografia Caligráfica -->
+      <h1 class="couple-title" id="card-couple-title">Beatriz & Guilherme</h1>
+      
+      <!-- Frase do Convite -->
+      <p class="invitation-phrase" id="card-invitation-phrase">
+        Convidam para a celebração do seu casamento
+      </p>
+
+      <!-- Divisor Floral -->
+      <div class="ornament-divider">
+        <div class="line"></div>
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+        <div class="line"></div>
+      </div>
+
+      <!-- Detalhes do Evento: Data, Hora e Local -->
+      <div class="event-details-card">
+        <div class="card-label">DATA & CELEBRAÇÃO</div>
+        <div class="event-date-large" id="card-display-date">Sábado, 24 de Outubro de 2026</div>
+        <div class="event-time" id="card-display-time">às 16:00 horas</div>
+
+        <div class="card-label" style="margin-top: 14px;">LOCAL DO EVENTO</div>
+        <div class="venue-name" id="card-venue-name">Quinta dos Cedros</div>
+        <div class="venue-address" id="card-venue-address">Estrada dos Castelos, 45 - Sintra, Portugal</div>
+
+        <a href="#" target="_blank" class="btn-map" id="btn-open-map">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+          Ver no mapa
+        </a>
+      </div>
+
+      <!-- Galeria / Carrossel de Fotos do Casal -->
+      <div class="gallery-section">
+        <h2 class="section-title">A Nossa História</h2>
+        <p class="section-subtitle">Momentos que nos trouxeram até aqui</p>
+        
+        <div class="carousel-container">
+          <div class="carousel-track" id="carousel-track">
+            <!-- Os slides são renderizados dinamicamente pelo JS via CONFIG -->
+          </div>
+          <button class="carousel-nav-btn prev" id="carousel-btn-prev" aria-label="Foto anterior">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          </button>
+          <button class="carousel-nav-btn next" id="carousel-btn-next" aria-label="Próxima foto">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </button>
+        </div>
+        <div class="carousel-dots" id="carousel-dots"></div>
+      </div>
+
+      <!-- Contagem Regressiva -->
+      <div class="countdown-section">
+        <div class="card-label">CONTAGEM REGRESSIVA</div>
+        <div class="countdown-grid">
+          <div class="countdown-box">
+            <span class="countdown-number" id="countdown-days">00</span>
+            <span class="countdown-label">DIAS</span>
+          </div>
+          <div class="countdown-box">
+            <span class="countdown-number" id="countdown-hours">00</span>
+            <span class="countdown-label">HORAS</span>
+          </div>
+          <div class="countdown-box">
+            <span class="countdown-number" id="countdown-minutes">00</span>
+            <span class="countdown-label">MIN</span>
+          </div>
+          <div class="countdown-box">
+            <span class="countdown-number" id="countdown-seconds">00</span>
+            <span class="countdown-label">SEG</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmação de Presença (RSVP com localStorage) -->
+      <div class="rsvp-section">
+        <div class="card-label">CONFIRMAÇÃO DE PRESENÇA</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+          Por favor confirme a sua presença até 30 de Setembro
+        </p>
+
+        <!-- Botões de Escolha -->
+        <div class="rsvp-buttons-group">
+          <button class="btn-rsvp-choice" id="rsvp-choice-yes">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            Vou comparecer
+          </button>
+          <button class="btn-rsvp-choice" id="rsvp-choice-no">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            Não poderei
+          </button>
+        </div>
+
+        <!-- Formulário detalhado de RSVP -->
+        <form class="rsvp-form-container" id="rsvp-form">
+          <div class="form-group">
+            <label for="guest-name">Seu Nome Completo *</label>
+            <input type="text" id="guest-name" placeholder="Ex: Maria Santos" required>
+          </div>
+
+          <div class="form-group" id="group-guests-count">
+            <label for="guests-count">Número de Pessoas</label>
+            <select id="guests-count">
+              <option value="1">1 pessoa (Apenas eu)</option>
+              <option value="2">2 pessoas (Com acompanhante)</option>
+              <option value="3">3 pessoas (Família)</option>
+              <option value="4">4+ pessoas</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="group-dietary">
+            <label for="dietary-notes">Restrições Alimentares (Opcional)</label>
+            <input type="text" id="dietary-notes" placeholder="Vegetariano, vegan, celíaco, alergias...">
+          </div>
+
+          <button type="submit" class="btn-submit-rsvp" id="btn-submit-rsvp">
+            Guardar Confirmação
+          </button>
+        </form>
+
+        <!-- Status após confirmação gravada no localStorage -->
+        <div class="rsvp-status-badge" id="rsvp-status-badge">
+          <div class="status-title" id="status-badge-title">Presença confirmada!</div>
+          <div class="status-desc" id="status-badge-desc">Obrigado pela sua resposta. Estamos ansiosos para celebrar convosco.</div>
+          <button type="button" class="btn-change-rsvp" id="btn-change-rsvp">Alterar resposta</button>
+        </div>
+      </div>
+
+      <!-- Traje / Dress Code & Informações Adicionais -->
+      <div class="info-section">
+        <!-- Card Dress Code -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-icon">✨</span>
+            <div class="info-title" id="dresscode-title">Traje / Dress Code</div>
+          </div>
+          <div class="dress-code-badge" id="dresscode-category">Passeio Completo / Formal</div>
+          <div class="info-content" id="dresscode-desc">
+            Pedimos tons suaves e elegantes que harmonizem com o jardim. Nota gentil: tons de branco e marfim são reservados para a noiva.
+          </div>
+        </div>
+
+        <!-- Outras Informações Renderizadas dinamicamente -->
+        <div id="additional-info-container"></div>
+      </div>
+
+      <!-- Botão Adicionar ao Calendário -->
+      <div class="calendar-section">
+        <button class="btn-add-calendar" id="btn-add-calendar">
+          <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/></svg>
+          Adicionar ao Calendário
+        </button>
+      </div>
+
+      <!-- Rodapé -->
+      <div class="invitation-footer">
+        <div class="footer-quote">Com amor,</div>
+        <div class="footer-copy" id="footer-couple-names">Beatriz & Guilherme • 2026</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================================================
+       JAVASCRIPT STANDALONE COM OBJETO DE CONFIGURAÇÃO NO TOPO
+       ======================================================================== -->
+  <script>
+    /* =========================================================================
+       1. OBJETO DE CONFIGURAÇÃO DO CONVITE (EDITAR AQUI)
+       Altere facilmente qualquer dado: nomes, data, fotos, cores e textos!
+       ========================================================================= */
+    const WEDDING_CONFIG = {
+      // Nomes do casal e monograma
+      couple: {
+        name1: "Beatriz",
+        name2: "Guilherme",
+        fullName: "Beatriz & Guilherme",
+        initials: "B & G"
+      },
+
+      // Frase principal de convite
+      invitationPhrase: "Convidam para a celebração do seu casamento",
+
+      // Dados do Evento
+      event: {
+        // Data no formato ISO para cálculo preciso do relógio (AAAA-MM-DDTHH:MM:SS)
+        isoDate: "2026-10-24T16:00:00",
+        displayDate: "Sábado, 24 de Outubro de 2026",
+        displayTime: "às 16:00 horas",
+        venueName: "Quinta dos Cedros",
+        venueAddress: "Estrada dos Castelos, 45 - Sintra, Portugal",
+        mapUrl: "https://maps.google.com/?q=Quinta+dos+Cedros+Sintra+Portugal",
+        calendarEvent: {
+          title: "Casamento de Beatriz & Guilherme",
+          details: "Celebração do casamento de Beatriz & Guilherme na Quinta dos Cedros.",
+          location: "Quinta dos Cedros, Sintra, Portugal",
+          startUtc: "20261024T160000Z",
+          endUtc: "20261025T020000Z"
+        }
+      },
+
+      // Cores personalizadas do envelope e selo
+      colors: {
+        envelopeColor: "#384934",     // Tom verde-oliva elegante
+        envelopeFlapColor: "#2F3E2B", // Tom ligeiramente mais escuro
+        waxSealColor: "#C59A3F",      // Dourado clássico de cera
+        waxDark: "#8C6A24",
+        waxLight: "#F2D27A",
+        paperBg: "#FAF7F2",
+        textPrimary: "#273424",
+        accentGold: "#A8812C"
+      },
+
+      // Galeria de Fotos do Casal (Carrossel)
+      photos: [
+        {
+          url: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=80",
+          caption: "O dia em que dissemos o nosso primeiro sim."
+        },
+        {
+          url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1000&q=80",
+          caption: "Cumplicidade, risos e o mesmo sonho."
+        },
+        {
+          url: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1000&q=80",
+          caption: "O início da nossa maior e mais bonita aventura."
+        },
+        {
+          url: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1000&q=80",
+          caption: "Mal podemos esperar por celebrar convosco!"
+        }
+      ],
+
+      // Dress Code
+      dressCode: {
+        title: "Traje / Dress Code",
+        category: "Passeio Completo / Formal",
+        description: "Pedimos tons suaves e elegantes que harmonizem com o jardim. Nota gentil: tons de branco e marfim são reservados exclusivamente para a noiva."
+      },
+
+      // Informações Adicionais (Cronograma, Presentes, etc.)
+      additionalInfo: [
+        {
+          icon: "🕊️",
+          title: "Cronograma do Dia",
+          text: "16:00 Receção | 16:30 Cerimónia Religiosa\n18:00 Cocktail de Boas-vindas | 20:00 Jantar dos Noivos\n22:30 Corte do Bolo & Abertura da Pista de Dança"
+        },
+        {
+          icon: "🎁",
+          title: "Presente de Casamento",
+          text: "A vossa presença é o nosso maior presente! Se desejarem mimar-nos, agradecemos uma contribuição para a nossa viagem de Lua de Mel."
+        },
+        {
+          icon: "🚗",
+          title: "Estacionamento & Transporte",
+          text: "O local dispõe de estacionamento gratuito. Para poderem brindar à vontade, sugerimos serviço de táxi ou Uber."
+        }
+      ]
+    };
+
+    /* =========================================================================
+       2. INICIALIZAÇÃO E APLICAÇÃO DA CONFIGURAÇÃO NO DOM
+       ========================================================================= */
+    document.addEventListener("DOMContentLoaded", () => {
+      applyConfigToDOM();
+      setupInteractiveEnvelope();
+      setupCarousel();
+      setupCountdown();
+      setupRSVP();
+      setupCalendar();
+    });
+
+    function applyConfigToDOM() {
+      // Aplicar variáveis de cor CSS
+      const root = document.documentElement;
+      root.style.setProperty('--envelope-color', WEDDING_CONFIG.colors.envelopeColor);
+      root.style.setProperty('--envelope-flap-color', WEDDING_CONFIG.colors.envelopeFlapColor);
+      root.style.setProperty('--wax-color', WEDDING_CONFIG.colors.waxSealColor);
+      root.style.setProperty('--wax-dark', WEDDING_CONFIG.colors.waxDark);
+      root.style.setProperty('--wax-light', WEDDING_CONFIG.colors.waxLight);
+      root.style.setProperty('--paper-bg', WEDDING_CONFIG.colors.paperBg);
+      root.style.setProperty('--text-primary', WEDDING_CONFIG.colors.textPrimary);
+      root.style.setProperty('--accent-gold', WEDDING_CONFIG.colors.accentGold);
+
+      // Nomes e textos do Estado 1
+      document.getElementById("envelope-couple-names").textContent = WEDDING_CONFIG.couple.fullName;
+      document.getElementById("envelope-wax-initials").textContent = WEDDING_CONFIG.couple.initials;
+
+      // Nomes e textos do Estado 2
+      document.getElementById("card-monogram").textContent = WEDDING_CONFIG.couple.initials;
+      document.getElementById("card-couple-title").textContent = WEDDING_CONFIG.couple.fullName;
+      document.getElementById("card-invitation-phrase").textContent = WEDDING_CONFIG.invitationPhrase;
+
+      document.getElementById("card-display-date").textContent = WEDDING_CONFIG.event.displayDate;
+      document.getElementById("card-display-time").textContent = WEDDING_CONFIG.event.displayTime;
+      document.getElementById("card-venue-name").textContent = WEDDING_CONFIG.event.venueName;
+      document.getElementById("card-venue-address").textContent = WEDDING_CONFIG.event.venueAddress;
+      document.getElementById("btn-open-map").href = WEDDING_CONFIG.event.mapUrl;
+
+      // Dress Code
+      document.getElementById("dresscode-title").textContent = WEDDING_CONFIG.dressCode.title;
+      document.getElementById("dresscode-category").textContent = WEDDING_CONFIG.dressCode.category;
+      document.getElementById("dresscode-desc").textContent = WEDDING_CONFIG.dressCode.description;
+
+      // Footer
+      document.getElementById("footer-couple-names").textContent = `${WEDDING_CONFIG.couple.fullName} • ${new Date(WEDDING_CONFIG.event.isoDate).getFullYear()}`;
+
+      // Informações Adicionais
+      const addInfoContainer = document.getElementById("additional-info-container");
+      addInfoContainer.innerHTML = "";
+      WEDDING_CONFIG.additionalInfo.forEach(info => {
+        const card = document.createElement("div");
+        card.className = "info-card";
+        card.innerHTML = `
+          <div class="info-card-header">
+            <span class="info-icon">${info.icon}</span>
+            <div class="info-title">${info.title}</div>
+          </div>
+          <div class="info-content">${info.text}</div>
+        `;
+        addInfoContainer.appendChild(card);
+      });
+    }
+
+    /* =========================================================================
+       3. ANIMAÇÃO DE ABERTURA DO ENVELOPE (QUEBRAR O SELO E DESDOBRAR)
+       ========================================================================= */
+    function setupInteractiveEnvelope() {
+      const sealTrigger = document.getElementById("wax-seal-trigger");
+      const envelopeScreen = document.getElementById("envelope-screen");
+      const invitationContent = document.getElementById("invitation-content");
+      const btnReplay = document.getElementById("btn-replay-envelope");
+
+      sealTrigger.addEventListener("click", () => {
+        // Tentar feedback de vibração se suportado no dispositivo
+        if (window.navigator && window.navigator.vibrate) {
+          try { window.navigator.vibrate(40); } catch(e){}
+        }
+
+        // Adiciona classe que desencadeia a animação de quebra do selo e desdobramento do envelope
+        envelopeScreen.classList.add("envelope-opening");
+
+        // Revela a carta principal
+        setTimeout(() => {
+          invitationContent.classList.add("revealed");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }, 600);
+      });
+
+      // Botão para fechar e rever o envelope a qualquer momento
+      btnReplay.addEventListener("click", () => {
+        invitationContent.classList.remove("revealed");
+        envelopeScreen.classList.remove("envelope-opening");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+
+    /* =========================================================================
+       4. CARROSSEL DE FOTOS COM TOUCH / SWIPE E NAVEGAÇÃO
+       ========================================================================= */
+    let currentSlide = 0;
+    function setupCarousel() {
+      const track = document.getElementById("carousel-track");
+      const dotsContainer = document.getElementById("carousel-dots");
+      const btnPrev = document.getElementById("carousel-btn-prev");
+      const btnNext = document.getElementById("carousel-btn-next");
+
+      track.innerHTML = "";
+      dotsContainer.innerHTML = "";
+
+      WEDDING_CONFIG.photos.forEach((photo, idx) => {
+        // Slide
+        const slide = document.createElement("div");
+        slide.className = "carousel-slide";
+        slide.innerHTML = `
+          <img src="${photo.url}" alt="${photo.caption}" loading="lazy">
+          <div class="slide-caption">${photo.caption}</div>
+        `;
+        track.appendChild(slide);
+
+        // Dot
+        const dot = document.createElement("div");
+        dot.className = `dot ${idx === 0 ? 'active' : ''}`;
+        dot.addEventListener("click", () => goToSlide(idx));
+        dotsContainer.appendChild(dot);
+      });
+
+      function goToSlide(index) {
+        if (index < 0) index = WEDDING_CONFIG.photos.length - 1;
+        if (index >= WEDDING_CONFIG.photos.length) index = 0;
+        currentSlide = index;
+
+        track.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+        const dots = dotsContainer.querySelectorAll(".dot");
+        dots.forEach((d, i) => {
+          d.classList.toggle("active", i === currentSlide);
+        });
+      }
+
+      btnPrev.addEventListener("click", () => goToSlide(currentSlide - 1));
+      btnNext.addEventListener("click", () => goToSlide(currentSlide + 1));
+
+      // Suporte para Touch Swipe
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      track.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      track.addEventListener("touchend", (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      }, { passive: true });
+
+      function handleSwipe() {
+        const threshold = 40;
+        if (touchEndX < touchStartX - threshold) {
+          goToSlide(currentSlide + 1); // Swipe esquerda -> próxima
+        }
+        if (touchEndX > touchStartX + threshold) {
+          goToSlide(currentSlide - 1); // Swipe direita -> anterior
+        }
+      }
+    }
+
+    /* =========================================================================
+       5. CONTAGEM REGRESSIVA EM TEMPO REAL
+       ========================================================================= */
+    function setupCountdown() {
+      const targetDate = new Date(WEDDING_CONFIG.event.isoDate).getTime();
+
+      const daysEl = document.getElementById("countdown-days");
+      const hoursEl = document.getElementById("countdown-hours");
+      const minutesEl = document.getElementById("countdown-minutes");
+      const secondsEl = document.getElementById("countdown-seconds");
+
+      function updateTimer() {
+        const now = new Date().getTime();
+        const difference = targetDate - now;
+
+        if (difference <= 0) {
+          daysEl.textContent = "00";
+          hoursEl.textContent = "00";
+          minutesEl.textContent = "00";
+          secondsEl.textContent = "00";
+          return;
+        }
+
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+        daysEl.textContent = String(days).padStart(2, '0');
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minutesEl.textContent = String(minutes).padStart(2, '0');
+        secondsEl.textContent = String(seconds).padStart(2, '0');
+      }
+
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    /* =========================================================================
+       6. CONFIRMAÇÃO DE PRESENÇA (RSVP COM PERSISTÊNCIA EM LOCALSTORAGE)
+       ========================================================================= */
+    const RSVP_STORAGE_KEY = "tatiana_wedding_rsvp_response";
+
+    function setupRSVP() {
+      const choiceYes = document.getElementById("rsvp-choice-yes");
+      const choiceNo = document.getElementById("rsvp-choice-no");
+      const rsvpForm = document.getElementById("rsvp-form");
+      const groupGuests = document.getElementById("group-guests-count");
+      const groupDietary = document.getElementById("group-dietary");
+      const statusBadge = document.getElementById("rsvp-status-badge");
+      const statusTitle = document.getElementById("status-badge-title");
+      const statusDesc = document.getElementById("status-badge-desc");
+      const btnChange = document.getElementById("btn-change-rsvp");
+
+      const guestNameInput = document.getElementById("guest-name");
+      const guestsCountInput = document.getElementById("guests-count");
+      const dietaryNotesInput = document.getElementById("dietary-notes");
+
+      let currentDecision = null; // 'yes' ou 'no'
+
+      // Verificar se já existe resposta guardada no localStorage
+      checkSavedRSVP();
+
+      choiceYes.addEventListener("click", () => {
+        currentDecision = 'yes';
+        choiceYes.classList.add("selected-yes");
+        choiceNo.classList.remove("selected-no");
+
+        groupGuests.style.display = "block";
+        groupDietary.style.display = "block";
+        rsvpForm.classList.add("active");
+        statusBadge.classList.remove("visible");
+      });
+
+      choiceNo.addEventListener("click", () => {
+        currentDecision = 'no';
+        choiceNo.classList.add("selected-no");
+        choiceYes.classList.remove("selected-yes");
+
+        // Ocultar acompanhantes e alimentação se não puder comparecer
+        groupGuests.style.display = "none";
+        groupDietary.style.display = "none";
+        rsvpForm.classList.add("active");
+        statusBadge.classList.remove("visible");
+      });
+
+      rsvpForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const name = guestNameInput.value.trim();
+        if (!name) return;
+
+        const responseData = {
+          attending: currentDecision === 'yes',
+          guestName: name,
+          guestsCount: currentDecision === 'yes' ? guestsCountInput.value : "0",
+          dietaryNotes: currentDecision === 'yes' ? dietaryNotesInput.value.trim() : "",
+          timestamp: new Date().toISOString()
+        };
+
+        // Guardar no localStorage
+        try {
+          localStorage.setItem(RSVP_STORAGE_KEY, JSON.stringify(responseData));
+        } catch(err) {
+          console.warn("localStorage não disponível:", err);
+        }
+
+        renderSavedRSVP(responseData);
+      });
+
+      btnChange.addEventListener("click", () => {
+        statusBadge.classList.remove("visible");
+        rsvpForm.classList.add("active");
+      });
+
+      function checkSavedRSVP() {
+        try {
+          const saved = localStorage.getItem(RSVP_STORAGE_KEY);
+          if (saved) {
+            const data = JSON.parse(saved);
+            renderSavedRSVP(data);
+          }
+        } catch(e) {}
+      }
+
+      function renderSavedRSVP(data) {
+        rsvpForm.classList.remove("active");
+        statusBadge.classList.add("visible");
+
+        if (data.attending) {
+          choiceYes.classList.add("selected-yes");
+          choiceNo.classList.remove("selected-no");
+          statusTitle.textContent = "Presença confirmada! 🎉";
+          statusTitle.style.color = "var(--rsvp-yes)";
+          statusDesc.textContent = `Obrigado(a), ${data.guestName}! A vossa presença (${data.guestsCount} ${data.guestsCount == 1 ? 'pessoa' : 'pessoas'}) foi registada com sucesso.`;
+        } else {
+          choiceNo.classList.add("selected-no");
+          choiceYes.classList.remove("selected-yes");
+          statusTitle.textContent = "Resposta registada 💌";
+          statusTitle.style.color = "var(--rsvp-no)";
+          statusDesc.textContent = `Compreendemos, ${data.guestName}. Sentiremos a vossa falta e agradecemos o carinho!`;
+        }
+
+        guestNameInput.value = data.guestName || "";
+        guestsCountInput.value = data.guestsCount || "1";
+        dietaryNotesInput.value = data.dietaryNotes || "";
+      }
+    }
+
+    /* =========================================================================
+       7. ADICIONAR AO CALENDÁRIO (.ICS & GOOGLE CALENDAR)
+       ========================================================================= */
+    function setupCalendar() {
+      const btnCalendar = document.getElementById("btn-add-calendar");
+
+      btnCalendar.addEventListener("click", () => {
+        const cal = WEDDING_CONFIG.event.calendarEvent;
+
+        // Gerar ficheiro iCalendar (.ics) descarregável
+        const icsContent = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//TATIANA//Convite Digital//PT",
+          "BEGIN:VEVENT",
+          `UID:${Date.now()}@tatianaconvites.com`,
+          `DTSTAMP:${cal.startUtc}`,
+          `DTSTART:${cal.startUtc}`,
+          `DTEND:${cal.endUtc}`,
+          `SUMMARY:${cal.title}`,
+          `DESCRIPTION:${cal.details}`,
+          `LOCATION:${cal.location}`,
+          "STATUS:CONFIRMED",
+          "END:VEVENT",
+          "END:VCALENDAR"
+        ].join("\r\n");
+
+        const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+        const downloadUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.setAttribute("download", `${WEDDING_CONFIG.couple.name1}_e_${WEDDING_CONFIG.couple.name2}_Casamento.ics`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+  </script>
+</body>
+</html>

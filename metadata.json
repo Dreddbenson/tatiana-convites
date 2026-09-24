@@ -1,0 +1,6 @@
+{
+  "name": "TATIANA - Convites Digitais",
+  "description": "Convites de casamento digitais interativos com envelope 3D, selo de cera e RSVP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
